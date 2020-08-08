@@ -28,7 +28,7 @@
 
 ## 同步使用說明
 
-1. 將 [dist/quick-opencc-full.js](dist/quick-opencc-full.js) 複製下來，並透過 script 標籤引用。
+1. 將 [dist/quick-opencc-sync.js](dist/quick-opencc-sync.js) 複製下來，並透過 script 標籤引用。
 2. 呼叫 `quickOpenCC.convert(text, fromLoc, toLoc)` 就會回傳 text 轉換後的字串。
 
 上面的 fromLoc 與 toLoc是一個字串（沿用 opencc-js 的命名方式），目前允許的有：
