@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="Zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同步範例</title>
+</head>
+<body>
+	<pre id='log'></pre>
+	<script src="../dist/quick-opencc-sync.js"></script>
+	<script>
+	(async ()=>{
+		let text=await fetch('testdata.txt').then(response=>response.text());
+		let out1=quickOpenCC.convert(text, 'cn', 'tw');
+		document.querySelector('#log').textContent=out1;
+	})();
+	</script>
+</body>
+</html>

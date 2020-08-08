@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="Zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>速度測試</title>
+</head>
+<body>
+	<pre id='log'></pre>
+	<script src="../dist/quick-opencc-async.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/opencc-js@0.2.2"></script>
+	<script>
+		quickOpenCC.config({
+			url: 'https://cdn.jsdelivr.net/npm/opencc-data@1.0.1/data/',
+			type: 'txt'
+		});
+
+		(async()=>{
+			let text=await fetch('testdata.txt').then(response=>response.text());
+			let convQuick=await quickOpenCC.createConverter('cn', 'tw');
+			let convOrig=await OpenCC.Converter('cn', 'tw');
+			let out1,out2;
+			let t1=testCost(function(){
+				out1=convQuick(text);
+			});
+			let t2=testCost(function(){
+				out2=convOrig(text);
+			});
+			document.querySelector('#log').textContent=[
+				`測試資料共 ${text.length}字`,
+				`quickOpenCC 花費 ${t1} ms`,
+				`opencc-js 花費 ${t2} ms`,
+				`時間是原來的 ${Math.round(t1/t2*100)} %`,
+				`輸出比對：${out1===out2?'相同':'差異'}`
+			].join('\n');
+		})();
+
+		function testCost(f) {
+			let ss=Date.now();
+			f();
+			return Date.now()-ss;
+		}
+	</script>
+</body>
+</html>
