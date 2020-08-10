@@ -12,6 +12,9 @@ function addPair(map, src, dest) {
     for(i=0;i<n;++i) {
         let top=stack[stack.length-1];
         let c=src.codePointAt(i); 
+        if(c>0xffff) {
+            ++i;
+        }
         let t=top.get(c);
         switch(typeof t) {
         case 'undefined':
@@ -71,6 +74,9 @@ function translate(text, map) {
         last_idx=null;
         for(j=i;j<n;) {
             let c=text.codePointAt(j);
+            if(c>0xffff) {
+                ++j;
+            }
             let t=m.get(c);
             let tp=typeof t;
 			
