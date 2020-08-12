@@ -7,53 +7,18 @@
  */
 function addPair(map, src, dest) {
     let n=src.length,
-        i=0,
-        stack=[map];
-    for(i=0;i<n;++i) {
-        let top=stack[stack.length-1];
-        let c=src.codePointAt(i); 
-        if(c>0xffff) {
-            ++i;
-        }
-        let t=top.get(c);
-        switch(typeof t) {
-        case 'undefined':
-            if(i+1==n) {
-                top.set(c, dest);
-                return;
-            } else {
-                t=new Map();
-                top.set(c, t);
-                stack.push(t);
-            }
-            break;
-        case 'string':
-            if(i+1==n) {
-                //throw new Error(`重複: ${src} => ${dest}`);
-                return;
-            } else {
-                let tmp=new Map();
-                tmp.set('', t);
-                top.set(c, tmp);
-                stack.push(tmp);
-            }
-            break;
-        case 'object':
-            if(i+1==n) {
-                if(t.get('')==='') {
-                    //throw new Error(`重複: ${src} => ${dest}`);
-                    t.set('', dest);
-                } else {
-                    t.set('', dest);
-                }
-                return;
-            } else {
-                stack.push(t);
-            }
-            break;
-        default:
-        }
-    }
+			i=0;
+		for(i=0;i<n;) {
+			let c=src.codePointAt(i);
+			i+=c>0xffff?2:1;
+			let m=map.get(c);
+			if(m===undefined) {
+				m=new Map();
+				map.set(c, m);
+			}
+			map=m;
+		}
+		map.set('', dest);
 }
 
 /**
@@ -64,59 +29,40 @@ function addPair(map, src, dest) {
  * @returns {String} 轉換後的字串
  */
 function translate(text, map) {
-    let i,j,
-        n=text.length,
-        m,arr=[],tmpstr,last_idx,orig_idx=null;
-    
-    for(i=0;i<n;) {
-        m=map;
-        tmpstr=null;
-        last_idx=null;
-        for(j=i;j<n;) {
-            let c=text.codePointAt(j);
-            if(c>0xffff) {
-                ++j;
-            }
-            let t=m.get(c);
-            let tp=typeof t;
-			
-            if(t===undefined) {
+    let n=text.length,
+        arr=[],orig_i=null;
+    for(let i=0;i<n;) {
+        let m=map, k=0, v=null, x=0;
+        for(let j=i;j<n;) {
+            x=text.codePointAt(j);
+            j+=x>0xffff?2:1;
+            let tmp=m.get(x);
+            if(tmp===undefined) {
                 break;
             }
-            if(tp==='string') {
-                tmpstr=t;
-                last_idx=++j;
-                break;
+            m=tmp;
+            tmp=m.get('');
+            if(tmp!==undefined) {
+                k=j;
+                v=tmp;
             }
-            if(tp==='object') {
-                m=t;
-                t=m.get('');
-                if(t!==undefined) {
-                    tmpstr=t;
-                    last_idx=j+1;
-                }
-                ++j;
-                continue;
-            }
-            throw new Error('ERR'+tp);
         }
-        if(last_idx!==null) {
-            if(orig_idx!==null) {
-                arr.push(text.substring(orig_idx, i));
-                orig_idx=null;
+        if(k>0) { //有替代
+            if(orig_i!==null) {
+                arr.push(text.slice(orig_i, i));
+                orig_i=null;
             }
-            arr.push(tmpstr);
-            i=last_idx;
-        } else {
-            if(orig_idx===null) {
-                orig_idx=i;
+            arr.push(v);
+            i=k;
+        } else { //無替代
+            if(orig_i===null) {
+                orig_i=i;
             }
-            //arr.push(text.substring(i,i+1));
-            ++i;
+            i+=text.codePointAt(i)>0xffff?2:1;
         }
     }
-    if(orig_idx!==null) {
-        arr.push(text.substring(orig_idx, i));
+    if(orig_i!==null) {
+        arr.push(text.slice(orig_i, n));
     }
     return arr.join('');
 }
